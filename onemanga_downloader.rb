@@ -1,19 +1,17 @@
 #!/usr/bin/env ruby
+#
+# Put this script in your PATH and download from onemanga.com like this:
+#   onemanga_downloader.rb Bleach
+#
+# You will find the downloaded chapters under /tmp/Bleach
+#
 require 'rubygems'
 require 'mechanize'
 require 'nokogiri'
 require 'open-uri'
 
-#===============================
-# CHANGE BELOW VARIABLES - INI
-#===============================
-
 manga_root = "http://www.onemanga.com/"
-manga_name = "Initial_D"
-
-#===============================
-# CHANGE ABOVE VARIABLES - END
-#===============================
+manga_name = ARGV.first || "Bakuman"
 
 manga_folder = File.join("/tmp", manga_name)
 puts "Creating #{manga_folder}"
