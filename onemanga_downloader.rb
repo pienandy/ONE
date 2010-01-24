@@ -43,6 +43,8 @@ chapter_folder = ""
 
 # go all the way. the navigation stop in the last chapter with a bookmark link
 while (agent.page / "#id_bookmark_click").empty?
+  break if agent.page.forms.empty?
+  
   # create the chapter folder if it changes
   current_chapter_number = agent.page.forms.last.fields.select { |f| f.name == 'chapter' }.first.value
   if chapter_number != current_chapter_number
