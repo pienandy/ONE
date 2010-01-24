@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 #
 # Put this script in your PATH and download from onemanga.com like this:
-#   onemanga_downloader.rb Bleach
+#   onemanga_downloader.rb Bleach [chapter number]
 #
 # You will find the downloaded chapters under /tmp/Bleach
 #
@@ -12,6 +12,7 @@ require 'open-uri'
 
 manga_root = "http://www.onemanga.com/"
 manga_name = ARGV.first || "Bakuman"
+start_from_chapter = ARGV.size > 1 ? ARGV[1] : nil
 
 manga_folder = File.join("/tmp", manga_name)
 puts "Creating #{manga_folder}"
@@ -22,8 +23,14 @@ agent = WWW::Mechanize.new { |agent| agent.user_agent_alias = 'Mac Safari' }
 # index page
 agent.get(manga_root + manga_name)
 
-# find first chapter
-chapter_link = agent.page.links.select { |l| l.href =~ /#{manga_name}\/\d+/ }.reverse.first
+# find chapter
+chapter_link = agent.page.links.select do |l| 
+    if start_from_chapter
+      l.href =~ /#{manga_name}\/#{start_from_chapter}\//
+    else
+      l.href =~ /#{manga_name}\/\d+/
+    end
+  end.reverse.first
 
 # click the chapter link in the index page
 agent.click chapter_link
