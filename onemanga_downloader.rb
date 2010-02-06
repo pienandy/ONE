@@ -3,18 +3,44 @@
 # Put this script in your PATH and download from onemanga.com like this:
 #   onemanga_downloader.rb Bleach [chapter number]
 #
-# You will find the downloaded chapters under /tmp/Bleach
+# You will find the downloaded chapters under $HOME/Documents/OneManga/Bleach
 #
+# If you run this script without arguments, it will check your local manga downloads
+# and check if there are any new chapters
 require 'rubygems'
 require 'mechanize'
 require 'nokogiri'
 require 'open-uri'
 
 manga_root = "http://www.onemanga.com/"
+manga_download_folder = File.join(ENV['HOME'],"/Documents/OneManga/")
+
+if ARGV.size == 0
+  # no args means just to check for new chapters
+  agent = WWW::Mechanize.new { |agent| agent.user_agent_alias = 'Mac Safari' }
+  mangas = Dir.glob(File.join(manga_download_folder, "*")).map { |f| f.gsub(manga_download_folder, '')}
+  mangas.each do |manga_name|
+    downloaded_chapters = Dir.glob(File.join(manga_download_folder, manga_name, "*")).map { |f| f.gsub(File.join(manga_download_folder, manga_name, "/"), "").to_i }
+    last_chapter = downloaded_chapters.sort.last
+    # index page
+    agent.get(manga_root + manga_name)
+
+    # find chapter
+    chapters = agent.page.links.map do |l| 
+      if l.href =~ /#{manga_name}\/(\d+)/
+        $1.to_i
+      end
+    end
+    most_recent_chapter = chapters.compact.sort.last
+    puts "#{last_chapter}/#{most_recent_chapter} - #{manga_name}"
+  end
+  exit 0 # go away
+end
+
 manga_name = ARGV.first || "Bakuman"
 start_from_chapter = ARGV.size > 1 ? ARGV[1] : nil
 
-manga_folder = File.join("/tmp", manga_name)
+manga_folder = File.join(manga_download_folder, manga_name)
 puts "Creating #{manga_folder}"
 FileUtils.mkdir_p(manga_folder)
 
