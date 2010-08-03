@@ -20,8 +20,10 @@ end
 
 manga_name    = ARGV[0]
 volumes       = ARGV[1].to_i || 1  # defaults to just one volume
-start_chapter = ARGV[2].to_i || 0
+start_chapter = ARGV[2].to_i || 1
 last_chapter  = ARGV[3].to_i > 0 ? ARGV[3].to_i : -1 # defaults to all chapters
+
+puts "Preparing to pring #{manga_name} in #{volumes} volumes."
 
 manga_download_folder = File.join(ENV['HOME'],"/Documents/OneManga/")
 manga_current_folder = File.join(manga_download_folder, manga_name)
@@ -38,7 +40,7 @@ end
 folders = folders[start_chapter..last_chapter] # limit chapters to process
 
 current_volume = 1
-folders.each_slice(volumes) do |chapter_folders|
+folders.each_slice(folders.size / volumes) do |chapter_folders|
   manga_file = File.join(manga_download_folder, manga_name + "_#{current_volume}.pdf")
   File.delete(manga_file) if File.exists?(manga_file)
 
